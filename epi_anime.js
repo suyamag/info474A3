@@ -11,10 +11,10 @@ var tooltip = d3.select("body").append("div")
     const height = +svg.attr('height');
   
     const render = data => {
-      const title = 'Anime: Num Of Episodes vs. Avg Rating';
+      const title = 'Anime: # Of Episodes vs. Avg Rating';
       
       const xValue = d => d.episodes;
-      const xAxisLabel = 'Num Of Episodes';
+      const xAxisLabel = '# Of Episodes';
       
       const yValue = d => d.rating;
       const circleRadius = 3;
@@ -73,7 +73,7 @@ var tooltip = d3.select("body").append("div")
         .enter().append('circle')
           // .attr('cy', d => yScale(yValue(d)))
           // .attr('cx', d => xScale(xValue(d)))
-          .attr("cx", function(d) { return xScale(d.members);  })
+          .attr("cx", function(d) { return xScale(d.episodes);  })
     	    .attr("cy", function(d) { return yScale(d.rating);  })
           .attr('r', circleRadius)
           .on("mouseover", function(d) {
@@ -81,7 +81,7 @@ var tooltip = d3.select("body").append("div")
             tooltip.transition()
               .duration(200)
               .style("opacity", .8);
-            tooltip.html(d.name+ ": " + "<br\/>" + "popularity: " + d.members+ ", rating: " + d.rating)
+            tooltip.html(d.name+ ": " + "<br\/>" + "# Episodes: " + d.episodes+ ", Rating: " + d.rating)
               .style("left", (d3.event.pageX + 5) + "px")
               .style("top", (d3.event.pageY -28) + "px");
           })
