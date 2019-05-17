@@ -1,43 +1,108 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
+<html>
 
-body {
-  font: 11px sans-serif;
-}
+<head>
+    <title>INFO474A3</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v4.js"></script>
+</head>
 
-.axis line,
-.axis text {
-  font: 15px sans-serif;
-}
-.axis path {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-</style>
 <body>
-<link href="style.css" rel="stylesheet">
-<script src="http://d3js.org/d3.v4.min.js"></script>
-  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
-  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
-<div id="layout">
-	<div id="title">
-		<p>Popularity vs Average Rating</p>
-	</div>
-	<div id="visualization">
-		<svg class="chart"></svg>
-    <script src="anime.js"></script>
+
+    <h2>Average Anime Rating Histogram</h2>
+    <div id="layout">
+        <div id="dataviz"></div>
+
+        <p>
+        <label>Number of bins: </label>
+        <input type="number" min="0" max="100" step="30" value="20" id="nBin">
+        </p>
+        
+        <div id="scatterplots">
+            <a href="epi_index.html" class="button" id="button">Episodes</a>
+            <a href="pop_index.html" class="button" id="button">Popularity</a>
         </div>
-        <div id="filters">
-            <label for="type">Type:</label>
-            <select id="mytype"></select>
-            
-	</div>
-  
+    </div>
 
+    <script>
+        
+        // set the dimensions and margins of the graph
+        var margin = {top: 10, right: 30, bottom: 30, left: 40},
+            width = 660 - margin.left - margin.right,
+            height = 600 - margin.top - margin.bottom;
+        
+        // append the svg object to the body of the page
+        var svg = d3.select("#dataviz")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+        
+        // get the data
+        d3.csv("anime.csv", function(data) {
+        
+        // axis
+        var x = d3.scaleLinear()
+            .domain([0, 10])     
+            .range([0, width]);
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+        
+        var y = d3.scaleLinear()
+            .range([height, 0]);
+        var yAxis = svg.append("g")
+        
+        function update(nBin) {
+        
+            // set parameters for the histogram
+            var histogram = d3.histogram()
+                .value(function(d) { return d.rating; })  
+                .domain(x.domain()) 
+                .thresholds(x.ticks(nBin)); 
+        
+            var bins = histogram(data);
+        
+            y.domain([0, d3.max(bins, function(d) { return d.length; })]);   
+            yAxis
+                .transition()
+                .duration(1000)
+                .call(d3.axisLeft(y));
+        
+            var u = svg.selectAll("rect")
+                .data(bins)
+        
+            u
+                .enter()
+                .append("rect")
+                .merge(u) 
+                .transition()
+                .duration(1000)
+                .attr("x", 1)
+                .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
+                .attr("width", function(d) { return x(d.x1) - x(d.x0) -1 ; })
+                .attr("height", function(d) { return height - y(d.length); })
+                .style("fill", "#69b3a2")
+    
+            u
+                .exit()
+                .remove()
+        
+            }
+        
+        
+        // Initialize with 20 bins
+        update(20)
+        
+        
+        d3.select("#nBin").on("input", function() {
+            update(+this.value);
+        });
+        
+        });
+    </script>
 </body>
-</html>
 
+</html>

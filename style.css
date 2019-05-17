@@ -1,0 +1,62 @@
+body {
+    margin: 0px;
+}
+  
+circle {
+    fill: #553BD8;
+    opacity: 0.3;
+}
+  
+text {
+    font-family: sans-serif;
+}
+  
+.tick text {
+    font-size: 1.2em;
+    fill: #635F5D;
+}
+  
+.tick line {
+    stroke: #C0C0BB;
+}
+  
+.axis-label {
+    font-size: 3em;
+    fill: #8E8883;
+}
+  
+.title {
+    font-size: 2em;
+    fill: #635F5D;
+}
+
+.button {
+    background-color: #1833A8; 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+  }
+  
+.button:hover {
+    background-color: #0F689C; 
+}
+
+.d3-slider {
+    position: relative;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #aaaaaa;
+    z-index: 2;
+}
+
+.d3-slider-horizontal {
+    height: .8em;
+}  
+
+
