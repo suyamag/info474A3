@@ -76,8 +76,9 @@ var tooltip = d3.select("body").append("div")
           .attr("cx", function(d) { return xScale(d.episodes);  })
     	    .attr("cy", function(d) { return yScale(d.rating);  })
           .attr('r', circleRadius)
+          .style("fill", "purple")
           .on("mouseover", function(d) {
-            console.log("mouse");
+            console.log("hover");
             tooltip.transition()
               .duration(200)
               .style("opacity", .8);
