@@ -1,3 +1,7 @@
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
 (function (d3) {
     'use strict';
     console.log("anime");
@@ -67,23 +71,41 @@
       
       g.selectAll('circle').data(data)
         .enter().append('circle')
-          .attr('cy', d => yScale(yValue(d)))
-          .attr('cx', d => xScale(xValue(d)))
-          .attr('r', circleRadius);
+          // .attr('cy', d => yScale(yValue(d)))
+          // .attr('cx', d => xScale(xValue(d)))
+          .attr("cx", function(d) { return xScale(d.members);  })
+    	    .attr("cy", function(d) { return yScale(d.rating);  })
+          .attr('r', circleRadius)
+          .on("mouseover", function(d) {
+            console.log("mouse");
+            tooltip.transition()
+              .duration(200)
+              .style("opacity", .8);
+            tooltip.html(d.name+ ": " + "<br\/>" + "popularity: " + d.members+ ", rating: " + d.rating)
+              .style("left", (d3.event.pageX + 5) + "px")
+              .style("top", (d3.event.pageY -28) + "px");
+          })
+          .on("mouseout", function(d) {
+            tooltip.transition()
+              .duration(500)
+              .style("opacity", 0);
+          });
       
       g.append('text')
           .attr('class', 'title')
           .attr('y', -10)
           .text(title);
+
+      g.exit().remove();
     };
   
     d3.csv('anime_cleaned.csv')
       .then(data => {
         data.forEach(d => {
             d.anime_id = +d.anime_id;
-            d.name = +d.name;
-            d.genre = +d.genre;
-            d.type = +d.type;
+            d.name = d.name;
+            d.genre = d.genre;
+            d.type = d.type;
             d.episodes = +d.episodes;
             d.rating = +d.rating;
             d.members = +d.members;
