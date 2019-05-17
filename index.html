@@ -5,6 +5,10 @@
     <title>INFO474A3</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://d3js.org/d3.v4.js"></script>
+    	
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css"> 
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>	
+    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 </head>
 
 <body>
@@ -13,10 +17,12 @@
     <div id="layout">
         <div id="dataviz"></div>
 
-        <p>
-        <label>Number of bins: </label>
-        <input type="number" min="0" max="100" step="30" value="20" id="nBin">
-        </p>
+        <div class="slidecontainer">        
+            <p>Anime Shows with Number of Reviewers Greater Than: <span id="demo"></span></p>
+            <input type="range" min="1" max="1013917" value="1" class="slider" id="myRange">
+        </div>
+        <br>
+        <br>
         
         <div id="scatterplots">
             <a href="epi_index.html" class="button" id="button_epi">Episodes</a>
@@ -25,7 +31,9 @@
     </div>
 
     <script>
-        
+        var dataset;
+        var reducedDataset;
+        var numberBins = 50;
         // set the dimensions and margins of the graph
         var margin = {top: 10, right: 30, bottom: 30, left: 40},
             width = 660 - margin.left - margin.right,
@@ -40,9 +48,6 @@
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
         
-        // get the data
-        d3.csv("anime.csv", function(data) {
-        
         // axis
         var x = d3.scaleLinear()
             .domain([0, 10])     
@@ -54,9 +59,68 @@
         var y = d3.scaleLinear()
             .range([height, 0]);
         var yAxis = svg.append("g")
+
+        // get the data
+        d3.csv("anime.csv", function(data) {
+            dataset = data;
+            reducedDataset = data;
+            function update(nBin) {
+                // set parameters for the histogram
+                var histogram = d3.histogram()
+                    .value(function(d) { return d.rating; })  
+                    .domain(x.domain()) 
+                    .thresholds(x.ticks(nBin)); 
+            
+                var bins = histogram(data);
+            
+                y.domain([0, d3.max(bins, function(d) { return d.length; })]);   
+                yAxis
+                    .transition()
+                    .duration(1000)
+                    .call(d3.axisLeft(y));
+            
+                var u = svg.selectAll("rect")
+                    .data(bins)
+            
+                u
+                    .enter()
+                    .append("rect")
+                    .merge(u) 
+                    .transition()
+                    .duration(1000)
+                    .attr("x", 1)
+                    .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
+                    .attr("width", function(d) { return x(d.x1) - x(d.x0) -1 ; })
+                    .attr("height", function(d) { return height - y(d.length); })
+                    .style("fill", "#69b3a2")
         
-        function update(nBin) {
+                u
+                    .exit()
+                    .remove()
         
+            }
+        
+        
+            // Initialize with 20 bins
+            update(20)
+
+        });
+        
+        
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+        output.innerHTML = slider.value; // Display the default slider value
+        //redraw histogram based on slider.value
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function() {
+            output.innerHTML = this.value;
+        }
+        slider.onchange = function() { 
+            reducedDataset = dataset.filter(function(d) { return parseInt(d.members, 10) >= parseInt(slider.value, 10)});
+            updateRedraw(reducedDataset, numberBins);
+        }
+        function updateRedraw(data, nBin) {
+            console.log(nBin)
             // set parameters for the histogram
             var histogram = d3.histogram()
                 .value(function(d) { return d.rating; })  
@@ -90,18 +154,9 @@
                 .exit()
                 .remove()
         
-            }
+        }
         
         
-        // Initialize with 20 bins
-        update(20)
-        
-        
-        d3.select("#nBin").on("input", function() {
-            update(+this.value);
-        });
-        
-        });
     </script>
 </body>
 
